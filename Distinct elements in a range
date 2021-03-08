@@ -1,0 +1,59 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define SPEED ios_base::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL);
+#define int long long
+#define endl '\n'
+#define vi vector<ll>
+#define pii pair<ll, ll>
+#define pb push_back
+#define fi first
+#define se second
+#define all(x) x.begin(), x.end()
+#define fill(a,b) memset(a, b, sizeof(a))
+#define setbits(x) __builtin_popcountll(x)
+
+const int inf=0x3f3f3f3f3f3f3f3f, N = 2e5 + 5;
+int a[N], ar[N], n;
+vi st[4 * N];
+
+void build(int node, int L, int R) {
+	if(L == R) {
+		st[node] = vi(1, a[L]);
+		return;
+	}
+	int M = (L + R)>>1;
+	build(2 * node, L, M);
+	build(2 * node + 1, M + 1, R);
+	merge(st[2 * node].begin(), st[2 * node].end(), st[2 * node + 1].begin(), st[2 * node + 1].end(),
+              back_inserter(st[node]));
+}
+
+int query(int node, int L, int R, int l, int r) {
+	if(l > R || r < L)return 0;
+	if(l <= L && r >= R) {
+		auto it = upper_bound(all(st[node]), r);
+		return it - st[node].begin();
+	}
+	int M = (L + R)>>1;
+	return query(2 * node, L, M, l, r) + query(2 * node + 1, M + 1, R, l, r);
+}
+int distinct(int l, int r) {
+	return r - l + 1 - query(1, 1, n, l, r);
+}
+
+int32_t main() {
+    SPEED;
+    cin>>n;
+    for(int i = 1; i <= n; i++)cin>>ar[i];
+    map<ll, ll> mp;
+    for(int i = n; i >= 1; i--) {
+    	if(mp[ar[i]] == 0) {
+    		a[i] = 1e9;
+    	}
+    	else a[i] = mp[ar[i]];
+    	mp[ar[i]] = i;
+    }
+    build(1, 1, n);
+    return 0;
+}
