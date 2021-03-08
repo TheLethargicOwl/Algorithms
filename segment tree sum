@@ -1,0 +1,33 @@
+const int MAXN = 2e5 + 5;
+
+int in[MAXN], st[4 * MAXN];
+void build(int node, int L, int R) {
+	if(L == R) {
+		st[node] = in[L];
+		return;
+	}
+	int M = (L + R)>>1;
+	build(2 * node, L, M);
+	build(2 * node + 1, M + 1, R);
+	st[node] = st[2 * node] + st[2 * node + 1];
+}
+int sum(int node, int L, int R, int i, int j) {
+	if(L >= i && R <= j) {
+		return st[node];
+	}
+	if(L > j || R < i) {
+		return 0;
+	}
+	int M = (L + R)>>1;
+	return sum(2 * node, L, M, i, j) + sum(2 * node + 1, M + 1, R, i, j);
+}
+void update(int node, int L, int R, int pos, int diff) {
+	if(pos < L || pos > R)
+	          return;
+	st[node] += diff;
+	int M = (L + R)>>1;
+	if(L != R) {
+		update(2 * node, L, M, pos, diff);
+		update(2 * node + 1, M + 1, R, pos, diff);
+	}
+}
