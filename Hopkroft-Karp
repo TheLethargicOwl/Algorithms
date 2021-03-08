@@ -1,0 +1,157 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define vi vector<int>
+#define vvi vector<vi>
+#define int long long
+const int inf=0x3f3f3f3f3f3f3f3f;
+
+class BPGraph{
+	public:
+	
+	int n; //Vertices on left
+	int m; //Vertices on right
+	vi *adj;
+	int *pair_left; //Pair of the vertices from left
+	int *pair_right; //Pair of the vertices from right
+	int *dis; //Ditance of vertices calculated using bfs
+	
+	BPGraph(int n,int m){
+		this->n = n;
+		this->m = m;
+		adj = new vi[n+1];
+		
+	}
+	
+	void add_Edge(int u,int v){
+		adj[u].push_back(v);
+	}
+	
+	bool bfs(){
+		
+		queue<int>q;
+		dis[0] = inf;
+		for(int i = 1; i <= n; i++){
+			if(pair_left[i]==0){
+				dis[i] = 0;
+				q.push(i);
+			}
+			else{
+				dis[i] = inf;
+			}
+		}
+		
+		while(!q.empty()){
+			
+			int u = q.front();
+			q.pop();
+			
+			if(dis[u] < dis[0]){
+				for(int v:adj[u]){
+					int pair = pair_right[v]; 
+					if(dis[pair] == inf){
+						dis[pair] = dis[u] + 1;
+						q.push(pair);
+					}
+				}
+			}
+		}
+		
+		return (dis[0] < inf);
+	}
+	bool dfs(int u){
+		
+		if(!u)return true;
+		
+		for(int v:adj[u]){
+			
+			int pair = pair_right[v];
+			
+			if(dis[pair] == dis[u] + 1){
+				
+				if(dfs(pair)){
+					pair_left[u] = v;
+					pair_right[v] = u;
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	int hopcroft_karp(){
+		pair_left = new int[n+1];
+		pair_right = new int[m+1];
+		dis = new int[n+1];
+		for(int i = 0; i <= n; i++){
+			pair_left[i] = 0;
+		}
+		for(int i = 0; i <= m; i++){
+			pair_right[i] = 0;
+		}
+		
+		int ans = 0;
+		
+		while(bfs()){
+			
+			for(int u = 1; u <= n; u++){
+				if(!pair_left[u] && dfs(u)){
+					ans++;
+				}
+			}
+		}
+		
+		return ans;
+	}
+};
+
+
+int32_t main(){
+	
+	int n,m;
+	cin>>n>>m;
+	
+	BPGraph g(n,m);
+	
+	int e;
+	cin>>e;
+	for(int i = 0; i < e; i++){
+		int a,b;
+		cin>>a>>b;
+		g.add_Edge(a,b);
+	}
+	
+	int max_matching = g.hopcroft_karp();
+	
+	cout<<max_matching<<endl;
+	
+	cout<<"The pairs are: "<<endl;
+	
+	for(int i = 1; i <= n; i++){
+		cout<<i<<" "<<g.pair_left[i]<<endl;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
