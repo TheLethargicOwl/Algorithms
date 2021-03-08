@@ -1,0 +1,31 @@
+vector<vector<pii>> adj(MAXN);
+vi d, p;
+void dijkstra(int s) {
+	d = vi(MAXN, inf);
+	p = vi(MAXN, -1);
+	priority_queue<pii, vector<pii>, greater<pii>> pq;
+	pq.push({0, s});
+	while(!pq.empty()) {
+		int v = pq.top().se, cst = pq.top().fi;
+		pq.pop();
+		if(d[v] < cst)continue;
+		d[v] = cst;
+		for(auto u:adj[v]) {
+			int to = u.se;
+			int cst = u.fi;
+			if(d[v] + cst < d[to]) {
+				d[to] = d[v] + cst;
+				p[to] = v;
+				pq.push({d[to], to});
+			}
+		}
+	}
+}
+void path(int st, int end) {
+	if(p[end] == -1) {
+		cout<<"No Path";
+	}
+	for(int cur = end; cur != -1; cur = p[cur]) {
+		cout<<cur<<" ";
+	}
+}
