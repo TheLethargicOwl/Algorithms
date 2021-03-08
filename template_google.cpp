@@ -49,7 +49,7 @@ int32_t main(){
     cout.tie(NULL);
     int t = 1;
     cin>>t;
-    while(int z = 1; z <= t; z++){
+    for(int z = 1; z <= t; z++){
        cout<<"Case #"<<z<<": ";
     }
     return 0;
