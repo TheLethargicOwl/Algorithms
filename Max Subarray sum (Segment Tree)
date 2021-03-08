@@ -1,0 +1,55 @@
+#define inf LLONG_MAX
+const int MAXN=1e5 + 5;
+
+struct Node {
+	int mxPre;
+	int mxSuf;
+	int tlSum;
+	int mxSub;
+	Node() {
+		mxPre = mxSuf = tlSum = -inf;
+		mxSub = -inf;
+	}
+};
+
+int a[MAXN];
+Node st[4 * MAXN];
+
+Node merge(Node lft, Node rgt) {
+	Node parent;
+	parent.mxPre = max(lft.tlSum + rgt.mxPre, lft.mxPre);
+	parent.mxSuf = max(rgt.tlSum + lft.mxSuf, rgt.mxSuf);
+	parent.tlSum = lft.tlSum + rgt.tlSum;
+	parent.mxSub = max(max(lft.mxSub, rgt.mxSub), lft.mxSuf + rgt.mxPre);
+	return parent;
+}
+void build(int node, int L, int R) {
+	if(L == R) {
+		st[node].mxPre = st[node].mxSuf = st[node].tlSum = a[L];
+		st[node].mxSub = a[L];
+		return;
+	}
+	int M = (L + R)>>1;
+	build(2 * node, L, M);
+	build(2 * node + 1, M + 1, R);
+	st[node] = merge(st[2 * node], st[2 * node + 1]);
+}
+Node query(int node, int L, int R, int l, int r) {
+	if(l > R || r < L) {
+		Node null;
+		return null;
+	}
+	if(l <= L && r >= R) {
+		return st[node];
+	}
+	
+	int M = (L + R)>>1;
+	Node lft = query(2 * node, L, M, l, r);
+	Node rgt = query(2 * node + 1, M + 1, R, l, r);
+	Node rtn = merge(lft, rgt);
+	return rtn;
+}
+int mxSub(int l, int r, int n) {
+	Node rtn = query(1, 1, n, l, r);
+	return rtn.mxSub;
+}
