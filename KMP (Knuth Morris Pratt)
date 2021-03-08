@@ -1,0 +1,21 @@
+vi kmp(string s) {
+	int n = s.size();
+	vi v(n);
+	int j = 0;
+	for(int i = 1; i < n; i++) {
+		if(s[i] == s[j]) {
+			j++;
+			v[i] = j;
+		}
+		else {
+			while(j != 0 && s[i]!=s[j]) {
+				j = v[j - 1];
+			}
+			if(s[i] == s[j]) {
+				j++;
+				v[i] = j;
+			}
+		}
+	}
+	return v;
+}
