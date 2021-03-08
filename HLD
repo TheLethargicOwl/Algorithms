@@ -1,0 +1,157 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define SPEED ios_base::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL);
+#define ll long long
+#define endl '\n'
+#define vi vector<ll>
+#define pii pair<ll, ll>
+#define pb push_back
+#define fi first
+#define se second
+#define all(x) x.begin(), x.end()
+#define fill(a,b) memset(a, b, sizeof(a))
+#define setbits(x) __builtin_popcountll(x)
+
+const ll inf=0x3f3f3f3f3f3f3f3f, N = 2e5 + 5;
+ll n, q;
+ll arr[N], subTreeSize[N], depth[N], par[N], LtoN[N];
+vi g[N];
+
+ll dfs_1(ll v, ll p, ll _depth) {
+	depth[v] = _depth;
+	par[v] = p;
+	ll sz = 1;
+	for(ll u:g[v]) {
+		if(u == p)continue;
+		sz += dfs_1(u, v, _depth + 1);
+	}
+	return subTreeSize[v] = sz;
+}
+ll hOrl[N];//heavy or light
+ll label[N];//according to hld
+ll baseArray[N];//for st
+void dfs_2(ll v, ll p) {
+	ll sz = 0;
+	ll heavy = -1;
+	for(ll u:g[v]) {
+		if(u == p)continue;
+		if(subTreeSize[u] > sz) {
+			heavy = u;
+			sz = subTreeSize[u];
+		}
+		dfs_2(u, v);
+	}
+	ll f = 1;
+	for(ll u:g[v]) {
+		if(u == p)continue;
+		if(u == heavy && f) {
+			hOrl[u] = 1;
+			f = 0;
+			continue;
+		}
+		hOrl[u] = 0;
+	}
+}
+ll ptr = 1;
+void dfs_3(ll v, ll p) {
+	label[v] = ptr;
+	for(ll u:g[v]) {
+		if(u == p)continue;
+		if(hOrl[u]) {
+			++ptr;
+			dfs_3(u, v);
+		}
+	}
+	for(ll u:g[v]) {
+		if(u == p || hOrl[u])continue;
+		++ptr;
+		dfs_3(u, v);
+	}
+}
+ll st[4 * N], topLabel[N];
+void dfs_4(ll v, ll p) {
+	if(hOrl[v]) {
+		topLabel[v] = topLabel[p];
+	}
+	else topLabel[v] = label[v];
+	for(ll u:g[v]) {
+		if(u == p)continue;
+		dfs_4(u, v);
+	}
+}
+void build(ll node, ll L, ll R) {
+	if(L == R) {
+		st[node] = baseArray[L];
+		return;
+	}
+	ll M = (L + R)>>1;
+	build(2 * node, L, M);
+	build(2 * node + 1, M + 1, R);
+	st[node] = st[2 * node] + st[2 * node + 1];
+}
+void update(ll node, ll L, ll R, ll pos, ll diff) {
+	if(pos < L || pos > R)return;
+	st[node] += diff;
+	//array not updated !
+	ll M = (L + R)>>1;
+	if(L != R) {
+		update(2 * node, L, M, pos, diff);
+		update(2 * node + 1, M + 1, R, pos, diff);
+	}
+}
+ll query(ll node, ll L, ll R, ll l, ll r) {
+	if(R < l || L > r)return 0;
+	if(l <= L && r >= R)return st[node];
+	ll M = (L + R)>>1;
+	return query(2 * node, L, M, l, r) + query(2 * node + 1, M + 1, R, l, r);
+}
+ll queryUp(ll u, ll v) {
+	//from u upto v
+	if(topLabel[u] == topLabel[v]) {
+		return query(1, 1, n, label[v], label[u]);
+	}
+	ll parent = par[LtoN[topLabel[u]]];
+	return query(1, 1, n, topLabel[u], label[u]) + queryUp(parent, v);
+}
+int main() {
+    SPEED;
+    cin>>n>>q;
+    for(ll i = 1; i <= n; i++) {
+    	cin>>arr[i];
+    }
+    for(ll i = 1; i < n; i++) {
+    	ll u, v;
+    	cin>>u>>v;
+    	g[u].pb(v);
+    	g[v].pb(u);
+    }
+    dfs_1(1, 0, 0);
+    dfs_2(1, 0);
+    dfs_3(1, 0);
+    for(ll i = 1; i <= n; i++) {
+    	baseArray[label[i]] = arr[i];
+    }
+    dfs_4(1, 0);
+    for(ll i = 1; i <= n; i++)LtoN[label[i]] = i;
+    build(1, 1, n);
+    while(q--) {
+    	ll tp;
+    	cin>>tp;
+    	if(tp == 1) {
+    		ll s, x;
+    		cin>>s>>x;
+    		ll pos = label[s];
+    		ll ini = baseArray[pos];
+    		arr[s] = x;
+    		baseArray[pos] = x;
+    		update(1, 1, n, pos, x - ini);
+    	}
+    	else {
+    		ll s;
+    		cin>>s;
+    		cout<<queryUp(s, 1)<<endl;
+    	}
+    }
+    return 0;
+}
