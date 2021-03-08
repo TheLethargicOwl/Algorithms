@@ -1,0 +1,43 @@
+const int N = 1e5 + 5;
+int a[N], st[4 * N], lazy[4 * N];
+void build(int node, int L, int R) {
+	if(L == R) {
+		st[node] = a[L];
+		return;
+	}
+	int M = (L + R)>>1;
+	build(2 * node, L, M);
+	build(2 * node + 1, M + 1, R);
+	st[node] = st[2 * node] + st[2 * node + 1];
+}
+void prop(int node, int L, int R) {
+	st[node] += (R - L + 1) * lazy[node];
+	if(L != R) {
+		lazy[2 * node] += lazy[node];
+		lazy[2 * node + 1] += lazy[node];
+	}
+	lazy[node] = 0;
+}
+void update(int node, int L, int R, int l, int r, int val) {
+	if(lazy[node])prop(node, L, R);
+	if(r < L || l > R)return;
+	if(l <= L && r >= R) {
+		st[node] += (R - L + 1) * val;
+		if(L != R) {
+			lazy[2 * node + 1] += val;
+			lazy[2 * node] += val;
+		}
+		return;
+	}
+	int M = (L + R)>>1;
+	update(2 * node, L, M, l, r, val);
+	update(2 * node + 1, M + 1, R, l, r, val);
+	st[node] = st[2 * node] + st[2 * node + 1];
+}
+int query(int node, int L, int R, int l, int r) {
+	if(lazy[node])prop(node, L, R);
+	if(r < L || l > R)return 0;
+	if(l <= L && r >= R)return st[node];
+	int M = (L + R)>>1;
+	return query(2 * node, L, M, l, r) + query(2 * node + 1, M + 1, R, l, r);
+}
