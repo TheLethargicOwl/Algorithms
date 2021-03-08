@@ -1,0 +1,25 @@
+struct trie {
+	int cnt;
+	struct trie *child[2];
+	trie() {
+		cnt = 0;
+		fill(child, 0);
+	}
+};
+struct trie *root;//root = new trie; for initializing
+void insert(int n) {
+	vi v;
+	for(int i = 0; i < 32; i++) {
+		if((1ll << i) & n)v.pb(1);
+		else v.pb(0);
+	}
+	reverse(all(v));
+	struct trie *cur = root;
+	for(int i = 0; i < 32; i++) {
+		if(cur->child[v[i]] == NULL) {
+			cur->child[v[i]] = new trie;
+		}
+		cur = cur->child[v[i]];
+		cur->cnt++;
+	}
+}
