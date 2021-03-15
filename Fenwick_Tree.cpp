@@ -1,22 +1,21 @@
-struct FenwickTreeOneBasedIndexing {
+struct FenwickTree {
     vector<int> bit;  // binary indexed tree
     int n;
 
-    FenwickTreeOneBasedIndexing(int n) {
-        this->n = n + 1;
-        bit.assign(n + 1, 0);
+    FenwickTree(int n) {
+        this->n = n;
+        bit.assign(n, 0);
     }
 
-    FenwickTreeOneBasedIndexing(vector<int> a)
-        : FenwickTreeOneBasedIndexing(a.size()) {
+    FenwickTree(vector<int> a) : FenwickTree(a.size()) {
         for (size_t i = 0; i < a.size(); i++)
             add(i, a[i]);
     }
 
-    int sum(int idx) {
+    int sum(int r) {
         int ret = 0;
-        for (++idx; idx > 0; idx -= idx & -idx)
-            ret += bit[idx];
+        for (; r >= 0; r = (r & (r + 1)) - 1)
+            ret += bit[r];
         return ret;
     }
 
@@ -25,7 +24,7 @@ struct FenwickTreeOneBasedIndexing {
     }
 
     void add(int idx, int delta) {
-        for (++idx; idx < n; idx += idx & -idx)
+        for (; idx < n; idx = idx | (idx + 1))
             bit[idx] += delta;
     }
 };
