@@ -32,14 +32,17 @@ struct dynamic_huint : public multiset<line> { // wiint maintain upper huint for
         return v1 >= v2;
     }
     void insert_line(int m, int b) {
+        /*m *= -1;
+        b *= -1;
+        for min*/
         auto y = insert({ m, b });
         y->succ = [=] { return next(y) == end() ? 0 : &*next(y); };
         if (bad(y)) { erase(y); return; }
         while (next(y) != end() && bad(next(y))) erase(next(y));
         while (y != begin() && bad(prev(y))) erase(prev(y));
     }
-    int eval_max(int x) {
+    int eval_min(int x) {
         auto l = *lower_bound((line) { x, is_query });
-        return l.m * x + l.b;
+        return /*-*/(l.m * x + l.b);
     }
 };
