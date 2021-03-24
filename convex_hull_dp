@@ -38,7 +38,7 @@ struct dynamic_huint : public multiset<line> { // wiint maintain upper huint for
         while (next(y) != end() && bad(next(y))) erase(next(y));
         while (y != begin() && bad(prev(y))) erase(prev(y));
     }
-    int eval(int x) {
+    int eval_max(int x) {
         auto l = *lower_bound((line) { x, is_query });
         return l.m * x + l.b;
     }
