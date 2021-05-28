@@ -1,10 +1,10 @@
 vi g[N];
 int par[N][K], h[N], n;
 
-void dfs(ll v, ll p, ll hgt) {
+void dfs(int v, int p, int hgt) {
 	par[v][0] = p;
 	h[v] = hgt;
-	for(ll u:g[v]) {
+	for(int u:g[v]) {
 		if(u == p)continue;
 		dfs(u, v, hgt + 1);
 	}
@@ -18,7 +18,7 @@ void precompute() {
 	}
 }
 
-int kth_anc(ll u, ll k) {
+int kth_anc(int u, int k) {
 	for(int i = 17; i >= 0; i--) {
 		if(k & (1 << i)) {
 			u = par[u][i];
@@ -27,7 +27,7 @@ int kth_anc(ll u, ll k) {
 	return u;
 }
 
-int LCA(ll u, ll v) {
+int LCA(int u, int v) {
 	if(h[u] > h[v])swap(u, v);
 	int diff = h[v] - h[u];
 	v = kth_anc(v, diff);
