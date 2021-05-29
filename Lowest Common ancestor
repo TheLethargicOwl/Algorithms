@@ -1,42 +1,43 @@
+const int N = 1e5 + 1, LG = log2(1e5 + 1) + 1;
+
+int dp[N][LG], hgt[N], n;
 vi g[N];
-int par[N][K], h[N], n;
 
-void dfs(int v, int p, int hgt) {
-	par[v][0] = p;
-	h[v] = hgt;
+void dfs(int v, int par, int h) {
+	dp[v][0] = par;
+	hgt[v] = h;
 	for(int u:g[v]) {
-		if(u == p)continue;
-		dfs(u, v, hgt + 1);
+		if(u == par)continue;
+		dfs(u, v, h + 1);
 	}
 }
 
-void precompute() {
-	for(int j = 1; j < K; j++) {
-		for(int i = 1; i <= n; i++) {
-			par[i][j] = par[par[i][j - 1]][j - 1];
+void pre() {
+	for(int j = 1; j < LG; ++j) {
+		for(int i = 1; i <= n; ++i) {
+			dp[i][j] = dp[dp[i][j - 1]][j - 1];
 		}
 	}
 }
 
-int kth_anc(int u, int k) {
-	for(int i = 17; i >= 0; i--) {
-		if(k & (1 << i)) {
-			u = par[u][i];
+int kth_anc(int v, int k) {
+	for(int j = LG - 1; j >= 0; --j) {
+		if(k & (1ll << j)) {
+			v = dp[v][j];
 		}
 	}
-	return u;
+	return v;
 }
 
 int LCA(int u, int v) {
-	if(h[u] > h[v])swap(u, v);
-	int diff = h[v] - h[u];
-	v = kth_anc(v, diff);
+	if(hgt[u] < hgt[v])swap(u, v);
+	u = kth_anc(u, hgt[u] - hgt[v]);
 	if(u == v)return u;
-	for(int i = 17; i >= 0; i--) {
-		if(par[u][i] != par[v][i]) {
-			u = par[u][i];
-			v = par[v][i];
+	for(int i = LG - 1; i >= 0; --i) {
+		if(dp[u][i] != dp[v][i]) {
+			u = dp[u][i];
+			v = dp[v][i];
 		}
 	}
-	return par[u][0];
+	return dp[u][0];
 }
