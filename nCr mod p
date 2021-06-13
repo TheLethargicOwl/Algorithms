@@ -1,4 +1,3 @@
-int fac[N], inv[N];
 int power(int a, int b, int p){
 	int res = 1;
 	while(b != 0) {
@@ -9,15 +8,21 @@ int power(int a, int b, int p){
 	}
 	return res%p;
 }
-void pre() {
-	fac[0] = 1;
-	inv[0] = 1;
-	for(int i = 1; i < N; i++) {
-		fac[i] = fac[i - 1] * i;
-		fac[i] %= p;
-		inv[i] = power(fac[i], p - 2, p);
-	}
+int fact[N],inv[N];
+void pre(int p) {
+    fact[0]=1;
+    inv[0]=1;
+    for(int i=1;i<N;i++)
+        fact[i]=(i*fact[i-1])%p;
+    for(int i=1;i<N;i++)
+        inv[i]=power(fact[i], p - 2, p);
 }
-int nCr(int n, int r, int p) {
-	return ((fac[n] * inv[n - r]) % p * inv[r]) % p;
-} 
+int nCr(int n, int r, int p) { 
+    if(r>n)
+       return 0;
+    if(n==r)
+       return 1;
+    if(r==0)
+       return 1; 
+    return (((fact[n]*inv[r]) % p )*inv[n-r])%p;
+}  
